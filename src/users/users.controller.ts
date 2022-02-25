@@ -19,7 +19,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private userService: UsersService) {}
   @Post()
-  async createUser(@Body() dto: CreateUserDto): Promise<void> {
+  async createUser(@Body(ValidationPipe) dto: CreateUserDto): Promise<void> {
     const { name, email, password } = dto;
     await this.userService.createUser(name, email, password);
   }
