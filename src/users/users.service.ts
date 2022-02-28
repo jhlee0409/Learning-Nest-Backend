@@ -1,30 +1,73 @@
 import { EmailService } from './../email/email.service';
 import * as uuid from 'uuid';
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { UserInfo } from './UserInfo';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from './entity/user.entity';
+import { Repository, Connection } from 'typeorm';
+import { ulid } from 'ulid';
 
 @Injectable()
 export class UsersService {
-  constructor(private emailService: EmailService) {}
+  constructor(
+    private emailService: EmailService,
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>,
+    private connection: Connection,
+  ) {}
   async createUser(name: string, email: string, password: string) {
-    await this.checkUserExists(email);
+    const userExist = await this.checkUserExists(email);
+    if (userExist) {
+      throw new UnprocessableEntityException(
+        '해당 이메일로는 가입할 수 없습니다.',
+      );
+    }
     const signupVerifyToken = uuid.v1();
-    await this.saveUser(name, email, password, signupVerifyToken);
+    await this.saveUserUsingQueryRunner(
+      name,
+      email,
+      password,
+      signupVerifyToken,
+    );
     await this.sendMemberJoinEmail(email, signupVerifyToken);
   }
 
-  private checkUserExists(email: string) {
-    //TODO: DB 연동후 구현
-    return false;
+  private async checkUserExists(emailAddress: string): Promise<boolean> {
+    const user = await this.usersRepository.findOne({ email: emailAddress });
+    return user !== undefined;
   }
-  private saveUser(
+
+  private async saveUserUsingQueryRunner(
     name: string,
     email: string,
     password: string,
     signupVerifyToken: string,
   ) {
-    //TODO: DB 연동후 구현
-    return;
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = new UserEntity();
+      user.id = ulid();
+      user.name = name;
+      user.email = email;
+      user.password = password;
+      user.signupVerifyToken = signupVerifyToken;
+      await queryRunner.manager.save(user);
+      // throw new InternalServerErrorException();
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log('error');
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
