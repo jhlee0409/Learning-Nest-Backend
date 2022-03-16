@@ -1,3 +1,4 @@
+import { UserEntity } from './entity/user.entity';
 import {
   Body,
   Controller,
@@ -8,20 +9,30 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { UserData } from 'src/decorator/UserData';
 import { ValidationPipe } from 'src/pipe/validation.pipe';
 import { CreateUserDto } from './dto/create-user.dto';
 import { VerifyEmailDto } from './dto/email-verify.dto';
 import { UserLoginDTo } from './dto/user-login.dto';
 import { UserInfo } from './UserInfo';
 import { UsersService } from './users.service';
-
+import { Roles } from 'src/decorator/Roles';
+@Roles('user')
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
   @Post()
+  @Roles('admin')
   async createUser(@Body(ValidationPipe) dto: CreateUserDto): Promise<void> {
     const { name, email, password } = dto;
     await this.userService.createUser(name, email, password);
+  }
+
+  @Get('/username')
+  @Roles('admin')
+  getHello2(@UserData('name') name: string) {
+    console.log(name);
+    this.userService.getLog();
   }
 
   @Post('/email-verify')
@@ -48,7 +59,6 @@ export class UsersController {
     @Query('limit', new DefaultValuePipe('missed limit')) limit: number,
   ) {
     console.log(offset, limit);
-
     return;
   }
 }
