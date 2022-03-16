@@ -2,7 +2,6 @@ import { EmailService } from './../email/email.service';
 import * as uuid from 'uuid';
 import {
   Injectable,
-  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -12,6 +11,7 @@ import { UserEntity } from './entity/user.entity';
 import { Repository, Connection } from 'typeorm';
 import { ulid } from 'ulid';
 import { AuthService } from 'src/auth/auth.service';
+import { LoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class UsersService {
@@ -21,8 +21,8 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     private connection: Connection,
     private authService: AuthService,
+    private logger: LoggerService,
   ) {}
-  private readonly logger = new Logger(UsersService.name);
 
   getLog(): string {
     this.logger.error('level: error');

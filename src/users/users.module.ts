@@ -5,9 +5,15 @@ import { UsersController } from './users.controller';
 import { Module } from '@nestjs/common';
 import { UserEntity } from './entity/user.entity';
 import { AuthModule } from 'src/auth/auth.module';
+import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
-  imports: [EmailModule, AuthModule, TypeOrmModule.forFeature([UserEntity])],
+  imports: [
+    EmailModule,
+    AuthModule,
+    LoggerModule,
+    TypeOrmModule.forFeature([UserEntity]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersModule, UsersService],
