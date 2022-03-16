@@ -11,7 +11,6 @@ import { UserEntity } from './entity/user.entity';
 import { Repository, Connection } from 'typeorm';
 import { ulid } from 'ulid';
 import { AuthService } from 'src/auth/auth.service';
-import { LoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class UsersService {
@@ -21,17 +20,7 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     private connection: Connection,
     private authService: AuthService,
-    private logger: LoggerService,
   ) {}
-
-  getLog(): string {
-    this.logger.error('level: error');
-    this.logger.warn('level: warn');
-    this.logger.log('level: log');
-    this.logger.verbose('level: verbose');
-    this.logger.debug('level: debug');
-    return 'hello world';
-  }
 
   async createUser(name: string, email: string, password: string) {
     const userExist = await this.checkUserExists(email);

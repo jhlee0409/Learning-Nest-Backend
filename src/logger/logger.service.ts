@@ -7,5 +7,7 @@ export class LoggerService extends ConsoleLogger {
     console.log(message);
     this.doSomething(message);
   }
-  private doSomething(message: any) {}
+  private doSomething(message: any) {
+    //do something
+  }
 }

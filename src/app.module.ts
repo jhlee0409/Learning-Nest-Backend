@@ -1,3 +1,4 @@
+import * as winston from 'winston';
 import { RolesGuard } from './guard/RolesGuard';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
@@ -10,6 +11,11 @@ import { Logger2Middleware } from './loggerMiddleware/logger2.middleware';
 import { UsersController } from './users/users.controller';
 import authConfig from './config/authConfig';
 import { APP_GUARD } from '@nestjs/core';
+import {
+  WinstonModule,
+  utilities as nestWinstonModuleUtilities,
+} from 'nest-winston';
+import { ExceptionModule } from './exception/exception.module';
 @Module({
   imports: [
     UsersModule,
@@ -24,6 +30,7 @@ import { APP_GUARD } from '@nestjs/core';
       //! Production에서는 절대 사용 금지
       // synchronize: true,
     }),
+    ExceptionModule,
   ],
   controllers: [],
   providers: [
