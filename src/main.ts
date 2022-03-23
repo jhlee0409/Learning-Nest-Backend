@@ -1,4 +1,5 @@
-import { LoggingInterceptor } from './logging.interceptor';
+import { TransformInterceptor } from './interceptor/transform.interceptor';
+import { LoggingInterceptor } from './interceptor/logging.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -31,7 +32,10 @@ async function bootstrap() {
   // winston logger
   // app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.useGlobalGuards(new AuthGuard());
-  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(),
+    new TransformInterceptor(),
+  );
   await app.listen(3000);
 }
 bootstrap();

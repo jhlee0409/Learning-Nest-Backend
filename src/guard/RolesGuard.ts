@@ -20,6 +20,6 @@ export class RolesGuard implements CanActivate {
 
   private getUserRole(userId: string): string {
     //userId로 role 가져왔다 치고 그 role은 admin으로 임시
-    return 'admin';
+    return 'user';
   }
 }

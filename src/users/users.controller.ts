@@ -1,3 +1,4 @@
+import { ErrorInterceptor } from './../interceptor/error.interceptor';
 import {
   Body,
   Controller,
@@ -11,6 +12,7 @@ import {
   LoggerService,
   InternalServerErrorException,
   Logger,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserData } from 'src/decorator/UserData';
 import { ValidationPipe } from 'src/pipe/validation.pipe';
@@ -67,14 +69,16 @@ export class UsersController {
     const { email, password } = dto;
     return await this.userService.login(email, password);
   }
-
+  @UseInterceptors(ErrorInterceptor)
   @Get('/:id')
   async getUserInfo(
     @Param('id', ParseIntPipe) userId: string,
   ): Promise<UserInfo> {
-    return await this.userService.getUserInfo(userId);
+    throw new InternalServerErrorException();
+    // return await this.userService.getUserInfo(userId);
   }
   @Get()
+  @Roles('admin')
   findAll(
     @Query('offset', ValidationPipe) offset: string,
     @Query('limit', new DefaultValuePipe('missed limit')) limit: number,
